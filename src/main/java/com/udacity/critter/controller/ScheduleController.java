@@ -2,10 +2,11 @@ package com.udacity.critter.controller;
 
 import com.udacity.critter.data.Schedule;
 import com.udacity.critter.dto.ScheduleDTO;
-import com.udacity.critter.repository.ScheduleRepository;
+import com.udacity.critter.service.ScheduleService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,37 +16,52 @@ import java.util.List;
 @RequestMapping("/schedule")
 public class ScheduleController {
 
-    private final ScheduleRepository scheduleRepository;
+    private final ScheduleService scheduleService;
 
-    public ScheduleController(ScheduleRepository scheduleRepository) {
-        this.scheduleRepository = scheduleRepository;
+    public ScheduleController(ScheduleService scheduleService) {
+        this.scheduleService = scheduleService;
     }
+
 
     @PostMapping
     public ScheduleDTO createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
         Schedule schedule = new Schedule();
         BeanUtils.copyProperties(scheduleDTO, schedule);
-        scheduleRepository.save(schedule);
+        scheduleService.save(schedule);
         return scheduleDTO;
     }
 
     @GetMapping
     public List<ScheduleDTO> getAllSchedules() {
-        throw new UnsupportedOperationException();
+        List<Schedule> schedules = scheduleService.getAll();
+        return copyScheduleListToScheduleDTOList(schedules);
     }
 
     @GetMapping("/pet/{petId}")
     public List<ScheduleDTO> getScheduleForPet(@PathVariable long petId) {
-        throw new UnsupportedOperationException();
+        List<Schedule> schedules = scheduleService.getAllByPet(petId);
+        return copyScheduleListToScheduleDTOList(schedules);
     }
 
     @GetMapping("/employee/{employeeId}")
     public List<ScheduleDTO> getScheduleForEmployee(@PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
+        List<Schedule> schedules = scheduleService.getAllByEmployee(employeeId);
+        return copyScheduleListToScheduleDTOList(schedules);
     }
 
     @GetMapping("/customer/{customerId}")
     public List<ScheduleDTO> getScheduleForCustomer(@PathVariable long customerId) {
-        throw new UnsupportedOperationException();
+        List<Schedule> schedules = scheduleService.getAllByCustomer(customerId);
+        return copyScheduleListToScheduleDTOList(schedules);
+    }
+
+    private List<ScheduleDTO> copyScheduleListToScheduleDTOList(List<Schedule> schedules) {
+        ArrayList<ScheduleDTO> scheduleDTOS = new ArrayList<>();
+        for (Schedule schedule : schedules) {
+            ScheduleDTO scheduleDTO = new ScheduleDTO();
+            BeanUtils.copyProperties(schedule, scheduleDTO);
+            scheduleDTOS.add(scheduleDTO);
+        }
+        return scheduleDTOS;
     }
 }

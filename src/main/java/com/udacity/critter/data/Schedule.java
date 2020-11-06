@@ -13,8 +13,8 @@ public class Schedule {
     @Id
     @GeneratedValue
     private Long id;
-    @OneToMany(targetEntity = Customer.class)
-    private List<Customer> employees;
+    @OneToMany(targetEntity = Employee.class)
+    private List<Employee> employees;
     @OneToMany(targetEntity = Pet.class)
     private List<Pet> pets;
     private LocalDate date;
@@ -32,11 +32,11 @@ public class Schedule {
         this.id = id;
     }
 
-    public List<Customer> getEmployees() {
+    public List<Employee> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(List<Customer> employees) {
+    public void setEmployees(List<Employee> employees) {
         this.employees = employees;
     }
 

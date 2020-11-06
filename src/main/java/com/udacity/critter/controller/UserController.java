@@ -5,8 +5,8 @@ import com.udacity.critter.data.Employee;
 import com.udacity.critter.dto.CustomerDTO;
 import com.udacity.critter.dto.EmployeeDTO;
 import com.udacity.critter.dto.EmployeeRequestDTO;
-import com.udacity.critter.repository.CustomerRepository;
-import com.udacity.critter.repository.EmployeeRepository;
+import com.udacity.critter.service.CustomerService;
+import com.udacity.critter.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,19 +24,20 @@ import java.util.Set;
 @RequestMapping("/user")
 public class UserController {
 
-    private final EmployeeRepository employeeRepository;
-    private final CustomerRepository customerRepository;
+    private final EmployeeService employeeService;
+    private final CustomerService customerService;
 
-    public UserController(EmployeeRepository employeeRepository, CustomerRepository customerRepository) {
-        this.employeeRepository = employeeRepository;
-        this.customerRepository = customerRepository;
+    public UserController(EmployeeService employeeService, CustomerService customerService) {
+        this.employeeService = employeeService;
+        this.customerService = customerService;
     }
+
 
     @PostMapping("/customer")
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO) {
         Customer customer = new Customer();
         BeanUtils.copyProperties(customerDTO, customer);
-        customerRepository.save(customer);
+        customerService.save(customer);
         return customerDTO;
     }
 
@@ -54,7 +55,7 @@ public class UserController {
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);
-        employeeRepository.save(employee);
+        employeeService.save(employee);
         return employeeDTO;
     }
 
