@@ -1,5 +1,6 @@
-package com.udacity.critter.pet;
+package com.udacity.critter.controller;
 
+import com.udacity.critter.dto.PetDTO;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

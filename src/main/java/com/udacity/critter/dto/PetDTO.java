@@ -1,4 +1,6 @@
-package com.udacity.critter.pet;
+package com.udacity.critter.dto;
+
+import com.udacity.critter.enums.PetType;
 
 import java.time.LocalDate;
 

@@ -1,4 +1,6 @@
-package com.udacity.critter.user;
+package com.udacity.critter.dto;
+
+import com.udacity.critter.enums.EmployeeSkill;
 
 import java.time.DayOfWeek;
 import java.util.Set;

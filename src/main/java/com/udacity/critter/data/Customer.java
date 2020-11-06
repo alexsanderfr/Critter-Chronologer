@@ -1,17 +1,30 @@
-package com.udacity.critter.user;
+package com.udacity.critter.data;
 
+import com.udacity.critter.data.Pet;
+import org.hibernate.annotations.Nationalized;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.util.List;
 
-/**
- * Represents the form that customer request and response data takes. Does not map
- * to the database directly.
- */
-public class CustomerDTO {
+@Entity
+public class Customer {
+    @Id
+    @GeneratedValue
     private long id;
+    @Nationalized
     private String name;
+    @Nationalized
     private String phoneNumber;
+    @Nationalized
     private String notes;
-    private List<Long> petIds;
+    @OneToMany(targetEntity = Pet.class)
+    private List<Pet> pets;
+
+    public Customer() {
+    }
 
     public long getId() {
         return id;
@@ -45,11 +58,11 @@ public class CustomerDTO {
         this.notes = notes;
     }
 
-    public List<Long> getPetIds() {
-        return petIds;
+    public List<Pet> getPets() {
+        return pets;
     }
 
-    public void setPetIds(List<Long> petIds) {
-        this.petIds = petIds;
+    public void setPets(List<Pet> pets) {
+        this.pets = pets;
     }
 }
