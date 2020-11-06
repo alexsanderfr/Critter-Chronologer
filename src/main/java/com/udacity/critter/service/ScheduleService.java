@@ -1,5 +1,6 @@
 package com.udacity.critter.service;
 
+import com.udacity.critter.data.Schedule;
 import com.udacity.critter.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,5 +13,9 @@ public class ScheduleService {
 
     public ScheduleService(ScheduleRepository scheduleRepository) {
         this.scheduleRepository = scheduleRepository;
+    }
+
+    public void save(Schedule schedule) {
+        scheduleRepository.save(schedule);
     }
 }

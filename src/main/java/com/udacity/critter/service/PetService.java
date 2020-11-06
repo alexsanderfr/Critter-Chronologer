@@ -37,9 +37,8 @@ public class PetService {
         return petRepository.findByOwner(customer);
     }
 
-    public Long save(Pet pet) {
-        Pet savedPet = petRepository.save(pet);
-        return savedPet.getId();
+    public void save(Pet pet) {
+        petRepository.save(pet);
     }
 
 

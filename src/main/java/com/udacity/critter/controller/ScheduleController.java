@@ -1,6 +1,9 @@
 package com.udacity.critter.controller;
 
+import com.udacity.critter.data.Schedule;
 import com.udacity.critter.dto.ScheduleDTO;
+import com.udacity.critter.repository.ScheduleRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +15,18 @@ import java.util.List;
 @RequestMapping("/schedule")
 public class ScheduleController {
 
+    private final ScheduleRepository scheduleRepository;
+
+    public ScheduleController(ScheduleRepository scheduleRepository) {
+        this.scheduleRepository = scheduleRepository;
+    }
+
     @PostMapping
     public ScheduleDTO createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
-        throw new UnsupportedOperationException();
+        Schedule schedule = new Schedule();
+        BeanUtils.copyProperties(scheduleDTO, schedule);
+        scheduleRepository.save(schedule);
+        return scheduleDTO;
     }
 
     @GetMapping
