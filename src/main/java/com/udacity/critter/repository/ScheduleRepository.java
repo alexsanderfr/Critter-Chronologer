@@ -12,9 +12,9 @@ import java.util.List;
 
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    List<Schedule> findByEmployeesContaining(Employee employee);
+    List<Schedule> findByEmployeesContains(Employee employee);
 
-    List<Schedule> findByPetsContaining(Pet pet);
+    List<Schedule> findByPetsContains(Pet pet);
 
     List<Schedule> findByPetsIn(Collection<List<Pet>> pets);
 }

@@ -2,11 +2,14 @@ package com.udacity.critter.service;
 
 import com.udacity.critter.data.Customer;
 import com.udacity.critter.data.Pet;
+import com.udacity.critter.dto.PetDTO;
 import com.udacity.critter.repository.CustomerRepository;
 import com.udacity.critter.repository.PetRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,24 +25,42 @@ public class PetService {
         this.customerRepository = customerRepository;
     }
 
-    public Pet get(Long petId) {
+    public PetDTO get(Long petId) {
         Optional<Pet> optionalPet = petRepository.findById(petId);
-        return optionalPet.orElse(null);
+        Pet pet = optionalPet.orElse(null);
+        PetDTO petDTO = new PetDTO();
+        if (pet != null) {
+            BeanUtils.copyProperties(pet, petDTO);
+            return petDTO;
+        }
+        return null;
     }
 
-    public List<Pet> getAll() {
-        return petRepository.findAll();
+    public List<PetDTO> getAll() {
+        return copyPetListToPetDTOList(petRepository.findAll());
     }
 
-    public List<Pet> getAllByOwner(Long id) {
+    public List<PetDTO> getAllByOwner(Long id) {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
         Customer customer = optionalCustomer.orElse(null);
-        return petRepository.findByOwner(customer);
+        return copyPetListToPetDTOList(petRepository.findByOwner(customer));
     }
 
-    public void save(Pet pet) {
-        petRepository.save(pet);
+    public PetDTO save(PetDTO petDTO) {
+        Pet pet = new Pet();
+        BeanUtils.copyProperties(petDTO, pet);
+        Pet savedPet = petRepository.save(pet);
+        BeanUtils.copyProperties(savedPet, petDTO);
+        return petDTO;
     }
 
-
+    private List<PetDTO> copyPetListToPetDTOList(List<Pet> pets) {
+        ArrayList<PetDTO> petDTOS = new ArrayList<>();
+        for (Pet pet : pets) {
+            PetDTO petDTO = new PetDTO();
+            BeanUtils.copyProperties(pet, petDTO);
+            petDTOS.add(petDTO);
+        }
+        return petDTOS;
+    }
 }

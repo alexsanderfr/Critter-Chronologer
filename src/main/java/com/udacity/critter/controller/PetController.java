@@ -23,39 +23,21 @@ public class PetController {
 
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
-        Pet pet = new Pet();
-        BeanUtils.copyProperties(petDTO, pet);
-        petService.save(pet);
-        return petDTO;
+        return petService.save(petDTO);
     }
 
     @GetMapping("/{petId}")
     public PetDTO getPet(@PathVariable long petId) {
-        Pet pet = petService.get(petId);
-        PetDTO petDTO = new PetDTO();
-        BeanUtils.copyProperties(pet, petDTO);
-        return petDTO;
+        return petService.get(petId);
     }
 
     @GetMapping
     public List<PetDTO> getPets() {
-        List<Pet> pets = petService.getAll();
-        return copyPetListToPetDTOList(pets);
+        return petService.getAll();
     }
 
     @GetMapping("/owner/{ownerId}")
     public List<PetDTO> getPetsByOwner(@PathVariable long ownerId) {
-        List<Pet> pets = petService.getAllByOwner(ownerId);
-        return copyPetListToPetDTOList(pets);
-    }
-
-    private List<PetDTO> copyPetListToPetDTOList(List<Pet> pets) {
-        ArrayList<PetDTO> petDTOS = new ArrayList<>();
-        for (Pet pet : pets) {
-            PetDTO petDTO = new PetDTO();
-            BeanUtils.copyProperties(pet, petDTO);
-            petDTOS.add(petDTO);
-        }
-        return petDTOS;
+        return petService.getAllByOwner(ownerId);
     }
 }
