@@ -22,6 +22,11 @@ public class PetController {
         this.petService = petService;
     }
 
+    @PostMapping("/{petId}")
+    public PetDTO savePet(@PathVariable long petId, @RequestBody PetDTO petDTO) {
+        petDTO.setId(petId);
+        return petService.save(petDTO);
+    }
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
         return petService.save(petDTO);

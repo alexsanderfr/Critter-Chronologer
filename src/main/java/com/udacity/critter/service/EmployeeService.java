@@ -1,10 +1,8 @@
 package com.udacity.critter.service;
 
 import com.udacity.critter.data.Employee;
-import com.udacity.critter.data.Schedule;
 import com.udacity.critter.dto.EmployeeDTO;
 import com.udacity.critter.dto.EmployeeRequestDTO;
-import com.udacity.critter.enums.EmployeeSkill;
 import com.udacity.critter.repository.EmployeeRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -29,8 +27,8 @@ public class EmployeeService {
     }
 
     public EmployeeDTO get(Long id) {
-        Employee employee = employeeRepository.getOne(id);
-        return copyEmployeeToEmployeeDTO(employee);
+        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
+        return optionalEmployee.map(this::copyEmployeeToEmployeeDTO).orElse(null);
     }
 
     public void setAvailability(Set<DayOfWeek> daysAvailable, Long employeeId) {
