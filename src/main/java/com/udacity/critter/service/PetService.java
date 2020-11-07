@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -26,14 +25,8 @@ public class PetService {
     }
 
     public PetDTO get(Long petId) {
-        Optional<Pet> optionalPet = petRepository.findById(petId);
-        Pet pet = optionalPet.orElse(null);
-        PetDTO petDTO = new PetDTO();
-        if (pet != null) {
-            BeanUtils.copyProperties(pet, petDTO);
-            return petDTO;
-        }
-        return null;
+        Pet pet = petRepository.getOne(petId);
+        return copyPetToPetDTO(pet);
     }
 
     public List<PetDTO> getAll() {
@@ -41,26 +34,40 @@ public class PetService {
     }
 
     public List<PetDTO> getAllByOwner(Long id) {
-        Optional<Customer> optionalCustomer = customerRepository.findById(id);
-        Customer customer = optionalCustomer.orElse(null);
+        Customer customer = customerRepository.getOne(id);
         return copyPetListToPetDTOList(petRepository.findByOwner(customer));
     }
 
     public PetDTO save(PetDTO petDTO) {
-        Pet pet = new Pet();
-        BeanUtils.copyProperties(petDTO, pet);
-        Pet savedPet = petRepository.save(pet);
-        BeanUtils.copyProperties(savedPet, petDTO);
-        return petDTO;
+        Pet savedPet = petRepository.save(copyPetDTOtoPet(petDTO));
+        Customer customer = customerRepository.getOne(petDTO.getOwnerId());
+        ArrayList<Pet> pets = (ArrayList<Pet>) customer.getPets();
+        if (pets == null) pets = new ArrayList<>();
+        pets.add(savedPet);
+        customer.setPets(pets);
+        return copyPetToPetDTO(savedPet);
     }
 
     private List<PetDTO> copyPetListToPetDTOList(List<Pet> pets) {
         ArrayList<PetDTO> petDTOS = new ArrayList<>();
         for (Pet pet : pets) {
-            PetDTO petDTO = new PetDTO();
-            BeanUtils.copyProperties(pet, petDTO);
-            petDTOS.add(petDTO);
+            petDTOS.add(copyPetToPetDTO(pet));
         }
         return petDTOS;
+    }
+
+    private Pet copyPetDTOtoPet(PetDTO petDTO) {
+        Pet pet = new Pet();
+        BeanUtils.copyProperties(petDTO, pet);
+        Customer customer = customerRepository.getOne(petDTO.getOwnerId());
+        pet.setOwner(customer);
+        return pet;
+    }
+
+    private PetDTO copyPetToPetDTO(Pet pet) {
+        PetDTO petDTO = new PetDTO();
+        BeanUtils.copyProperties(pet, petDTO);
+        petDTO.setOwnerId(pet.getOwner().getId());
+        return petDTO;
     }
 }

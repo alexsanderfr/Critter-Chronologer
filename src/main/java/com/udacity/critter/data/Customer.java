@@ -1,15 +1,12 @@
 package com.udacity.critter.data;
 
-import com.udacity.critter.data.Pet;
 import org.hibernate.annotations.Nationalized;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Table
 public class Customer {
     @Id
     @GeneratedValue

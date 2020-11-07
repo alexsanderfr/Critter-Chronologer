@@ -1,5 +1,6 @@
 package com.udacity.critter.controller;
 
+import com.udacity.critter.data.Customer;
 import com.udacity.critter.data.Pet;
 import com.udacity.critter.dto.PetDTO;
 import com.udacity.critter.service.PetService;

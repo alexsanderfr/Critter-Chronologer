@@ -32,29 +32,8 @@ public class ScheduleService {
     }
 
     public ScheduleDTO save(ScheduleDTO scheduleDTO) {
-        Schedule schedule = new Schedule();
-        BeanUtils.copyProperties(scheduleDTO, schedule);
-        if (scheduleDTO.getPetIds() != null) {
-            ArrayList<Pet> pets = new ArrayList<>();
-            for (Long petId : scheduleDTO.getPetIds()) {
-                Optional<Pet> optionalPet = petRepository.findById(petId);
-                optionalPet.ifPresent(pets::add);
-            }
-            schedule.setPets(pets);
-        }
-        if (scheduleDTO.getEmployeeIds() != null) {
-            ArrayList<Employee> employees = new ArrayList<>();
-            for (Long employeeId : scheduleDTO.getEmployeeIds()) {
-                Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
-                optionalEmployee.ifPresent(employees::add);
-            }
-            schedule.setEmployees(employees);
-        }
-        Schedule savedSchedule = scheduleRepository.save(schedule);
-        BeanUtils.copyProperties(savedSchedule, scheduleDTO);
-        scheduleDTO.setPetIds(savedSchedule.getPets().stream().map(Pet::getId).collect(Collectors.toList()));
-        scheduleDTO.setEmployeeIds(savedSchedule.getEmployees().stream().map(Employee::getId).collect(Collectors.toList()));
-        return scheduleDTO;
+        Schedule savedSchedule = scheduleRepository.save(copyScheduleDTOToSchedule(scheduleDTO));
+        return copyScheduleToScheduleDTO(savedSchedule);
     }
 
     public List<ScheduleDTO> getAll() {
@@ -62,35 +41,56 @@ public class ScheduleService {
     }
 
     public List<ScheduleDTO> getAllByEmployee(Long employeeId) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
-        Employee employee = optionalEmployee.orElse(null);
+        Employee employee = employeeRepository.getOne(employeeId);
         return copyScheduleListToScheduleDTOList(scheduleRepository.findByEmployeesContains(employee));
     }
 
     public List<ScheduleDTO> getAllByCustomer(Long customerId) {
-        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
-        Customer customer = optionalCustomer.orElse(null);
-        Collection<List<Pet>> pets = Collections.singleton(customer != null ? customer.getPets() : null);
+        Customer customer = customerRepository.getOne(customerId);
+        Collection<List<Pet>> pets = Collections.singleton(customer.getPets());
         return copyScheduleListToScheduleDTOList(scheduleRepository.findByPetsIn(pets));
     }
 
     public List<ScheduleDTO> getAllByPet(Long petId) {
-        Optional<Pet> optionalPet = petRepository.findById(petId);
-        Pet pet = optionalPet.orElse(null);
+        Pet pet = petRepository.getOne(petId);
         return copyScheduleListToScheduleDTOList(scheduleRepository.findByPetsContains(pet));
     }
 
     private List<ScheduleDTO> copyScheduleListToScheduleDTOList(List<Schedule> schedules) {
         ArrayList<ScheduleDTO> scheduleDTOS = new ArrayList<>();
         for (Schedule schedule : schedules) {
-            ScheduleDTO scheduleDTO = new ScheduleDTO();
-            BeanUtils.copyProperties(schedule, scheduleDTO);
-            scheduleDTO.setPetIds(schedule.getPets().stream().map(Pet::getId)
-                    .collect(Collectors.toList()));
-            scheduleDTO.setEmployeeIds(schedule.getEmployees().stream().map(Employee::getId)
-                    .collect(Collectors.toList()));
-            scheduleDTOS.add(scheduleDTO);
+            scheduleDTOS.add(copyScheduleToScheduleDTO(schedule));
         }
         return scheduleDTOS;
+    }
+
+    private ScheduleDTO copyScheduleToScheduleDTO(Schedule schedule) {
+        ScheduleDTO scheduleDTO = new ScheduleDTO();
+        BeanUtils.copyProperties(schedule, scheduleDTO);
+        scheduleDTO.setPetIds(schedule.getPets().stream().map(Pet::getId).collect(Collectors.toList()));
+        scheduleDTO.setEmployeeIds(schedule.getEmployees().stream().map(Employee::getId).collect(Collectors.toList()));
+        return scheduleDTO;
+    }
+
+    private Schedule copyScheduleDTOToSchedule(ScheduleDTO scheduleDTO) {
+        Schedule schedule = new Schedule();
+        BeanUtils.copyProperties(scheduleDTO, schedule);
+        if (scheduleDTO.getPetIds() != null && !scheduleDTO.getPetIds().isEmpty()) {
+            ArrayList<Pet> pets = new ArrayList<>();
+            for (Long petId : scheduleDTO.getPetIds()) {
+                Pet pet = petRepository.getOne(petId);
+                pets.add(pet);
+            }
+            schedule.setPets(pets);
+        }
+        if (scheduleDTO.getEmployeeIds() != null && !scheduleDTO.getEmployeeIds().isEmpty()) {
+            ArrayList<Employee> employees = new ArrayList<>();
+            for (Long employeeId : scheduleDTO.getEmployeeIds()) {
+                Employee employee = employeeRepository.getOne(employeeId);
+                employees.add(employee);
+            }
+            schedule.setEmployees(employees);
+        }
+        return schedule;
     }
 }

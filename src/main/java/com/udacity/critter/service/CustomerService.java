@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -27,23 +26,8 @@ public class CustomerService {
     }
 
     public CustomerDTO save(CustomerDTO customerDTO) {
-        Customer customer = new Customer();
-        BeanUtils.copyProperties(customerDTO, customer);
-        ArrayList<Pet> pets = new ArrayList<>();
-        if (customerDTO.getPetIds() != null) {
-            for (Long petId : customerDTO.getPetIds()) {
-                Optional<Pet> optionalPet = petRepository.findById(petId);
-                optionalPet.ifPresent(pets::add);
-            }
-            customer.setPets(pets);
-        }
-        Customer savedCustomer = customerRepository.save(customer);
-        CustomerDTO savedCustomerDTO = new CustomerDTO();
-        BeanUtils.copyProperties(savedCustomer, savedCustomerDTO);
-        if (savedCustomer.getPets() != null) {
-            savedCustomerDTO.setPetIds(savedCustomer.getPets().stream().map(Pet::getId).collect(Collectors.toList()));
-        }
-        return savedCustomerDTO;
+        Customer savedCustomer = customerRepository.save(copyCustomerDTOtoCustomer(customerDTO));
+        return copyCustomerToCustomerDTO(savedCustomer);
     }
 
     public List<CustomerDTO> getAll() {
@@ -51,26 +35,38 @@ public class CustomerService {
     }
 
     public CustomerDTO getByPetId(Long id) {
-        Optional<Pet> optionalPet = petRepository.findById(id);
-        Pet pet = optionalPet.orElse(null);
-        Customer customer = customerRepository.findByPetsContains(pet);
+        Pet pet = petRepository.getOne(id);
+        Customer customer = pet.getOwner();
+        return copyCustomerToCustomerDTO(customer);
+    }
+
+    public CustomerDTO copyCustomerToCustomerDTO(Customer customer) {
         CustomerDTO customerDTO = new CustomerDTO();
         BeanUtils.copyProperties(customer, customerDTO);
-        if (customer.getPets() != null) {
+        if (customer.getPets() != null && !customer.getPets().isEmpty()) {
             customerDTO.setPetIds(customer.getPets().stream().map(Pet::getId).collect(Collectors.toList()));
         }
         return customerDTO;
     }
 
+    public Customer copyCustomerDTOtoCustomer(CustomerDTO customerDTO) {
+        Customer customer = new Customer();
+        BeanUtils.copyProperties(customerDTO, customer);
+        if (customerDTO.getPetIds() != null && !customerDTO.getPetIds().isEmpty()) {
+            ArrayList<Pet> pets = new ArrayList<>();
+            for (Long petId : customerDTO.getPetIds()) {
+                Pet pet = petRepository.getOne(petId);
+                pets.add(pet);
+            }
+            customer.setPets(pets);
+        }
+        return customer;
+    }
+
     private List<CustomerDTO> copyCustomerListToCustomerDTOList(List<Customer> customers) {
         ArrayList<CustomerDTO> customerDTOS = new ArrayList<>();
         for (Customer customer : customers) {
-            CustomerDTO customerDTO = new CustomerDTO();
-            BeanUtils.copyProperties(customer, customerDTO);
-            if (customer.getPets() != null) {
-                customerDTO.setPetIds(customer.getPets().stream().map(Pet::getId).collect(Collectors.toList()));
-            }
-            customerDTOS.add(customerDTO);
+            customerDTOS.add(copyCustomerToCustomerDTO(customer));
         }
         return customerDTOS;
     }

@@ -21,22 +21,13 @@ public class EmployeeService {
     }
 
     public EmployeeDTO save(EmployeeDTO employeeDTO) {
-        Employee employee = new Employee();
-        BeanUtils.copyProperties(employeeDTO, employee);
-        Employee savedEmployee = employeeRepository.save(employee);
-        BeanUtils.copyProperties(savedEmployee, employeeDTO);
-        return employeeDTO;
+        Employee savedEmployee = employeeRepository.save(copyEmployeeDTOToEmployee(employeeDTO));
+        return copyEmployeeToEmployeeDTO(savedEmployee);
     }
 
     public EmployeeDTO get(Long id) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
-        Employee employee = optionalEmployee.orElse(null);
-        EmployeeDTO employeeDTO = new EmployeeDTO();
-        if (employee != null) {
-            BeanUtils.copyProperties(employee, employeeDTO);
-            return employeeDTO;
-        }
-        return null;
+        Employee employee = employeeRepository.getOne(id);
+        return copyEmployeeToEmployeeDTO(employee);
     }
 
     public void setAvailability(Set<DayOfWeek> daysAvailable, Long employeeId) {
@@ -52,10 +43,20 @@ public class EmployeeService {
     private List<EmployeeDTO> copyEmployeeListToEmployeeDTOList(List<Employee> employees) {
         ArrayList<EmployeeDTO> employeeDTOS = new ArrayList<>();
         for (Employee employee : employees) {
-            EmployeeDTO employeeDTO = new EmployeeDTO();
-            BeanUtils.copyProperties(employee, employeeDTO);
-            employeeDTOS.add(employeeDTO);
+            employeeDTOS.add(copyEmployeeToEmployeeDTO(employee));
         }
         return employeeDTOS;
+    }
+
+    private Employee copyEmployeeDTOToEmployee(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+        return employee;
+    }
+
+    private EmployeeDTO copyEmployeeToEmployeeDTO(Employee employee) {
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        BeanUtils.copyProperties(employee, employeeDTO);
+        return employeeDTO;
     }
 }
