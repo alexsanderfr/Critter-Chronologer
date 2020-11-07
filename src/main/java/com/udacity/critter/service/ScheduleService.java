@@ -42,18 +42,21 @@ public class ScheduleService {
 
     public List<ScheduleDTO> getAllByEmployee(Long employeeId) {
         Employee employee = employeeRepository.getOne(employeeId);
-        return copyScheduleListToScheduleDTOList(scheduleRepository.findByEmployeesContains(employee));
+        List<Schedule> schedules = scheduleRepository.queryFindAllByEmployee(employee);
+        return copyScheduleListToScheduleDTOList(schedules);
     }
 
     public List<ScheduleDTO> getAllByCustomer(Long customerId) {
         Customer customer = customerRepository.getOne(customerId);
-        Collection<List<Pet>> pets = Collections.singleton(customer.getPets());
-        return copyScheduleListToScheduleDTOList(scheduleRepository.findByPetsIn(pets));
+        List<Pet> pets = customer.getPets();
+        List<Schedule> schedules = scheduleRepository.findByPetsIn(pets);
+        return copyScheduleListToScheduleDTOList(schedules);
     }
 
     public List<ScheduleDTO> getAllByPet(Long petId) {
         Pet pet = petRepository.getOne(petId);
-        return copyScheduleListToScheduleDTOList(scheduleRepository.findByPetsContains(pet));
+        List<Schedule> schedules = scheduleRepository.findByPetsContains(pet);
+        return copyScheduleListToScheduleDTOList(schedules);
     }
 
     private List<ScheduleDTO> copyScheduleListToScheduleDTOList(List<Schedule> schedules) {

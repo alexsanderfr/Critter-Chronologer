@@ -14,9 +14,9 @@ public class Schedule {
     @Id
     @GeneratedValue
     private Long id;
-    @OneToMany(targetEntity = Employee.class)
+    @ManyToMany(targetEntity = Employee.class)
     private List<Employee> employees;
-    @OneToMany(targetEntity = Pet.class)
+    @ManyToMany(targetEntity = Pet.class)
     private List<Pet> pets;
     private LocalDate date;
     @ElementCollection

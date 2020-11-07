@@ -1,7 +1,9 @@
 package com.udacity.critter.service;
 
 import com.udacity.critter.data.Employee;
+import com.udacity.critter.data.Schedule;
 import com.udacity.critter.dto.EmployeeDTO;
+import com.udacity.critter.dto.EmployeeRequestDTO;
 import com.udacity.critter.enums.EmployeeSkill;
 import com.udacity.critter.repository.EmployeeRepository;
 import org.springframework.beans.BeanUtils;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.DayOfWeek;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -36,8 +39,12 @@ public class EmployeeService {
         save(employeeDTO);
     }
 
-    public List<EmployeeDTO> getAllBySkills(Set<EmployeeSkill> skills) {
-        return copyEmployeeListToEmployeeDTOList(employeeRepository.findAllBySkillsIn(Collections.singleton(skills)));
+    public List<EmployeeDTO> getAllForService(EmployeeRequestDTO employeeRequestDTO) {
+        List<Employee> employees = employeeRepository
+                .findAllByDaysAvailableContaining(employeeRequestDTO.getDate().getDayOfWeek())
+                .stream().filter(employee -> employee.getSkills().containsAll(employeeRequestDTO.getSkills()))
+                .collect(Collectors.toList());
+        return copyEmployeeListToEmployeeDTOList(employees);
     }
 
     private List<EmployeeDTO> copyEmployeeListToEmployeeDTOList(List<Employee> employees) {

@@ -63,7 +63,7 @@ public class UserController {
 
     @GetMapping("/employee/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        return employeeService.getAllBySkills(employeeDTO.getSkills());
+        return employeeService.getAllForService(employeeDTO);
     }
 
 }
